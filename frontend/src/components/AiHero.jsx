@@ -13,8 +13,8 @@ export default function AiHero({ onSkillClick, userSkills, user }) {
     useEffect(() => {
         const fetchAiSuggestions = async () => {
             try {
-                const res = await api.post('/users/ai-suggestions', { 
-                    currentSkills: userSkills 
+                const res = await api.post('/ai/suggestions', {
+                    currentSkills: userSkills
                 });
                 // Check if your backend returns { suggestions: [] } or { data: { suggestions: [] } }
                 const suggestions = res.data.suggestions || res.data.data?.suggestions;
@@ -121,7 +121,7 @@ export default function AiHero({ onSkillClick, userSkills, user }) {
                             borderRadius: 99, px: 2, py: 0.8,
                         }}>
                             <Typography sx={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 600, letterSpacing: '0.05em' }}>
-                                 ⚡ POWERED BY GROQ
+                                ⚡ POWERED BY GROQ
                             </Typography>
                         </Box>
                     </Box>
