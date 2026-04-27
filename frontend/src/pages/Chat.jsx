@@ -6,42 +6,47 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
-import DoneIcon    from '@mui/icons-material/Done';
+import DoneIcon from '@mui/icons-material/Done';
 import { io } from 'socket.io-client';
 import Navbar from '../components/Navbar';
-import api    from '../api';
+import api from '../api';
 
-const COLORS  = ['#2563EB','#7C3AED','#DB2777','#059669','#D97706','#DC2626'];
-const color   = n => { let h=0; for(let c of (n||'?')) h=c.charCodeAt(0)+((h<<5)-h); return COLORS[Math.abs(h)%COLORS.length]; };
-const initials= n => (n||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
-const fmt     = ts => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const COLORS = ['#2563EB', '#7C3AED', '#DB2777', '#059669', '#D97706', '#DC2626'];
+const color = n => { let h = 0; for (let c of (n || '?')) h = c.charCodeAt(0) + ((h << 5) - h); return COLORS[Math.abs(h) % COLORS.length]; };
+const initials = n => (n || '?').split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+const fmt = ts => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 let socket;
 
 export default function Chat() {
     const { userId: paramUserId } = useParams();
-    const navigate                = useNavigate();
-    const me                      = JSON.parse(localStorage.getItem('user') || '{}');
-    const token                   = localStorage.getItem('token');
+    const navigate = useNavigate();
+    const me = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token');
 
-    const [convos,       setConvos]       = useState([]);
-    const [activeId,     setActiveId]     = useState(paramUserId || null);
-    const [activeName,   setActiveName]   = useState('');
-    const [messages,     setMessages]     = useState([]);
-    const [text,         setText]         = useState('');
-    const [typing,       setTyping]       = useState(false);
+    const [convos, setConvos] = useState([]);
+    const [activeId, setActiveId] = useState(paramUserId || null);
+    const [activeName, setActiveName] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [text, setText] = useState('');
+    const [typing, setTyping] = useState(false);
     const [loadingConvo, setLoadingConvo] = useState(false);
-    const [onlineUsers,  setOnlineUsers]  = useState([]);
-    const bottomRef  = useRef(null);
-    const typingTimer= useRef(null);
-    const activeIdRef= useRef(activeId);
+    const [onlineUsers, setOnlineUsers] = useState([]);
+    const bottomRef = useRef(null);
+    const typingTimer = useRef(null);
+    const activeIdRef = useRef(activeId);
 
     useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
 
     // ── Connect socket ─────────────────────────────────────────────────────
     useEffect(() => {
-        socket = io('http://localhost:5000', { auth: { token } });
+        // Get the socket URL from environment variables, fallback to localhost
+        const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 
+        // Initialize the socket with the dynamic URL and auth token
+        socket = io(SOCKET_URL, {
+            auth: { token }
+        });
         socket.on('online_users', ids => setOnlineUsers(ids));
 
         socket.on('receive_message', msg => {
@@ -69,7 +74,7 @@ export default function Chat() {
             ));
         });
 
-        socket.on('user_typing',      () => setTyping(true));
+        socket.on('user_typing', () => setTyping(true));
         socket.on('user_stop_typing', () => setTyping(false));
 
         return () => socket.disconnect();
@@ -141,7 +146,7 @@ export default function Chat() {
         if (msg.sender.toString() !== me._id?.toString()) return null;
         return msg.read
             ? <DoneAllIcon sx={{ fontSize: 13, color: '#60A5FA', ml: 0.5, verticalAlign: 'middle' }} />
-            : <DoneIcon    sx={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', ml: 0.5, verticalAlign: 'middle' }} />;
+            : <DoneIcon sx={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', ml: 0.5, verticalAlign: 'middle' }} />;
     };
 
     return (

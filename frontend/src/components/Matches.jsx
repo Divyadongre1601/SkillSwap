@@ -19,7 +19,7 @@ function Matches({ matches }) {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/api/swap/send",
+        `${baseURL}/swap/send`,
         { toUserId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
