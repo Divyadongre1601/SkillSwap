@@ -13,7 +13,7 @@ const app    = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: { origin: process.env.CLIENT_URL || 'https://skill-swap-pearl.vercel.app/', credentials: true }
+    cors: { origin: process.env.CLIENT_URL || 'https://skill-swap-pearl.vercel.app', credentials: true }
 });
 
 io.use((socket, next) => {
@@ -66,7 +66,7 @@ io.on('connection', socket => {
     });
 });
 
-app.use(cors({ origin: process.env.CLIENT_URL || 'https://skill-swap-pearl.vercel.app/', credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URL || 'https://skill-swap-pearl.vercel.app', credentials: true }));
 app.use(express.json({ limit: '10kb' }));
 
 app.use('/api/users', require('./routes/userRoutes'));

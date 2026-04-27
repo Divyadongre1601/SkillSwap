@@ -3,7 +3,6 @@ import axios from 'axios';
 const api = axios.create({
     baseURL: 'https://skillswap-wv4u.onrender.com/api',
 });
-
 // Attach token to every request automatically
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
