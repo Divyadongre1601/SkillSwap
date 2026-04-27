@@ -1,22 +1,16 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-    Box, Card, CardContent, TextField, Button, Typography,
-    Stack, InputAdornment, IconButton, CircularProgress
-} from '@mui/material';
-import VisibilityOutlinedIcon     from '@mui/icons-material/VisibilityOutlined';
-import VisibilityOffOutlinedIcon  from '@mui/icons-material/VisibilityOffOutlined';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import { CircularProgress } from '@mui/material';
 import api from '../api';
 
 export default function Login() {
-    const [form, setForm]           = useState({ email: '', password: '' });
-    const [showPass, setShowPass]   = useState(false);
-    const [loading, setLoading]     = useState(false);
-    const [error, setError]         = useState('');
-    const navigate                  = useNavigate();
+    const [form,     setForm]     = useState({ email: '', password: '' });
+    const [showPass, setShowPass] = useState(false);
+    const [loading,  setLoading]  = useState(false);
+    const [error,    setError]    = useState('');
+    const navigate = useNavigate();
 
-    const handle = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
     const submit = async () => {
         setError('');
@@ -28,68 +22,242 @@ export default function Login() {
             localStorage.setItem('user',  JSON.stringify(data.user));
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed');
-        } finally {
-            setLoading(false);
-        }
+            setError(err.response?.data?.message || 'Login failed. Please try again.');
+        } finally { setLoading(false); }
     };
 
     return (
-        <Box sx={{ minHeight: '100vh', display: 'flex', background: '#F8FAFC' }}>
-            {/* Left panel */}
-            <Box sx={{ display: { xs: 'none', md: 'flex' }, flex: 1, background: 'linear-gradient(145deg, #667eea 0%, #764ba2 100%)', flexDirection: 'column', justifyContent: 'center', p: 8, position: 'relative', overflow: 'hidden' }}>
-                {[0,1,2].map(i => <Box key={i} sx={{ position: 'absolute', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', width: 200+i*150, height: 200+i*150, top: '50%', right: -100-i*80, transform: 'translateY(-50%)' }} />)}
-                <Box sx={{ position: 'relative', zIndex: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 6 }}>
-                        <Box sx={{ width: 40, height: 40, borderRadius: '10px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <SwapHorizIcon sx={{ color: '#fff', fontSize: 22 }} />
-                        </Box>
-                        <Typography variant="h5" fontWeight={800} color="white">SkillSwap</Typography>
-                    </Box>
-                    <Typography variant="h3" fontWeight={800} color="white" sx={{ lineHeight: 1.2, mb: 2 }}>
-                        Learn skills.<br />Teach skills.<br />Grow together.
-                    </Typography>
-                    <Typography color="rgba(255,255,255,0.75)" fontSize={16}>
-                        Exchange your expertise with people who have what you need.
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 4, mt: 6 }}>
-                        {[['500+','Users'],['1200+','Sessions'],['4.8★','Avg Rating']].map(([v,l]) => (
-                            <Box key={l}>
-                                <Typography color="white" fontWeight={800} fontSize={22}>{v}</Typography>
-                                <Typography color="rgba(255,255,255,0.65)" fontSize={13}>{l}</Typography>
-                            </Box>
-                        ))}
-                    </Box>
-                </Box>
-            </Box>
+        <>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
-            {/* Right panel */}
-            <Box sx={{ flex: { xs: 1, md: '0 0 440px' }, display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4 }}>
-                <Box sx={{ width: '100%', maxWidth: 360 }}>
-                    <Typography variant="h5" fontWeight={800} mb={0.5}>Welcome back</Typography>
-                    <Typography color="text.secondary" fontSize={14} mb={4}>Sign in to your SkillSwap account</Typography>
+                * { box-sizing: border-box; margin: 0; padding: 0; }
 
-                    {error && <Box sx={{ mb: 2, p: 1.5, background: '#FEE2E2', borderRadius: 2, color: '#DC2626', fontSize: 13 }}>{error}</Box>}
+                .login-root {
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: 'Outfit', sans-serif;
+                    background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #667eea);
+                    background-size: 400% 400%;
+                    animation: gradientShift 12s ease infinite;
+                    padding: 24px;
+                    position: relative;
+                    overflow: hidden;
+                }
 
-                    <Stack spacing={2.5}>
-                        <TextField label="Email" name="email" type="email" fullWidth value={form.email} onChange={handle} onKeyDown={e => e.key === 'Enter' && submit()} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} />
-                        <TextField label="Password" name="password" type={showPass ? 'text' : 'password'} fullWidth value={form.password} onChange={handle} onKeyDown={e => e.key === 'Enter' && submit()}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
-                            InputProps={{ endAdornment: <InputAdornment position="end"><IconButton onClick={() => setShowPass(p => !p)} size="small">{showPass ? <VisibilityOffOutlinedIcon fontSize="small" /> : <VisibilityOutlinedIcon fontSize="small" />}</IconButton></InputAdornment> }}
+                @keyframes gradientShift {
+                    0%   { background-position: 0% 50%; }
+                    50%  { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+
+                /* Floating orbs */
+                .orb {
+                    position: absolute;
+                    border-radius: 50%;
+                    filter: blur(60px);
+                    opacity: 0.35;
+                    animation: float 8s ease-in-out infinite;
+                    pointer-events: none;
+                }
+                .orb1 { width: 400px; height: 400px; background: #a78bfa; top: -100px; left: -100px; animation-delay: 0s; }
+                .orb2 { width: 300px; height: 300px; background: #f0abfc; bottom: -80px; right: -80px; animation-delay: 3s; }
+                .orb3 { width: 200px; height: 200px; background: #667eea; top: 50%; left: 60%; animation-delay: 6s; }
+
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px) scale(1); }
+                    50%       { transform: translateY(-30px) scale(1.05); }
+                }
+
+                .glass-card {
+                    background: rgba(255, 255, 255, 0.18);
+                    backdrop-filter: blur(24px);
+                    -webkit-backdrop-filter: blur(24px);
+                    border: 1px solid rgba(255, 255, 255, 0.35);
+                    border-radius: 24px;
+                    padding: 44px 40px;
+                    width: 100%;
+                    max-width: 420px;
+                    box-shadow: 0 8px 40px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.5);
+                    position: relative;
+                    z-index: 1;
+                    animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+                }
+
+                @keyframes cardIn {
+                    from { opacity: 0; transform: translateY(30px) scale(0.96); }
+                    to   { opacity: 1; transform: translateY(0)    scale(1); }
+                }
+
+                .logo-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 28px;
+                }
+
+                .logo-icon {
+                    width: 40px; height: 40px;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    border-radius: 12px;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 20px;
+                    box-shadow: 0 4px 14px rgba(102,126,234,0.5);
+                }
+
+                .logo-text {
+                    font-size: 22px; font-weight: 800;
+                    color: #fff;
+                    letter-spacing: -0.5px;
+                }
+
+                .card-title {
+                    font-size: 28px; font-weight: 800;
+                    color: #fff; letter-spacing: -0.5px;
+                    margin-bottom: 6px;
+                }
+
+                .card-sub {
+                    font-size: 14px; color: rgba(255,255,255,0.75);
+                    margin-bottom: 28px;
+                }
+
+                .error-box {
+                    background: rgba(239,68,68,0.2);
+                    border: 1px solid rgba(239,68,68,0.4);
+                    border-radius: 10px;
+                    padding: 10px 14px;
+                    font-size: 13px;
+                    color: #fca5a5;
+                    margin-bottom: 18px;
+                }
+
+                .field-group { margin-bottom: 16px; }
+
+                .field-label {
+                    font-size: 12px; font-weight: 600;
+                    color: rgba(255,255,255,0.8);
+                    letter-spacing: 0.04em;
+                    display: block; margin-bottom: 7px;
+                }
+
+                .glass-input {
+                    width: 100%; height: 46px;
+                    background: rgba(255,255,255,0.15);
+                    border: 1px solid rgba(255,255,255,0.3);
+                    border-radius: 12px;
+                    padding: 0 14px;
+                    font-size: 14px;
+                    font-family: 'Outfit', sans-serif;
+                    color: #fff;
+                    outline: none;
+                    transition: border-color 0.2s, background 0.2s;
+                    box-sizing: border-box;
+                }
+                .glass-input::placeholder { color: rgba(255,255,255,0.45); }
+                .glass-input:focus {
+                    border-color: rgba(255,255,255,0.7);
+                    background: rgba(255,255,255,0.22);
+                }
+
+                .pass-wrap { position: relative; }
+                .pass-toggle {
+                    position: absolute; right: 14px; top: 50%;
+                    transform: translateY(-50%);
+                    background: none; border: none; cursor: pointer;
+                    color: rgba(255,255,255,0.6); font-size: 16px; padding: 0;
+                    line-height: 1;
+                }
+
+                .submit-btn {
+                    width: 100%; height: 48px;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    border: none; border-radius: 12px;
+                    font-size: 15px; font-weight: 700;
+                    font-family: 'Outfit', sans-serif;
+                    color: #fff; cursor: pointer;
+                    margin-top: 8px;
+                    box-shadow: 0 4px 20px rgba(102,126,234,0.5);
+                    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+                    display: flex; align-items: center; justify-content: center; gap: 8px;
+                }
+                .submit-btn:hover:not(:disabled) {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 28px rgba(102,126,234,0.65);
+                }
+                .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+                .divider {
+                    text-align: center;
+                    color: rgba(255,255,255,0.5);
+                    font-size: 13px;
+                    margin-top: 22px;
+                }
+                .divider a {
+                    color: #fff; font-weight: 700;
+                    text-decoration: none;
+                    border-bottom: 1px solid rgba(255,255,255,0.5);
+                    transition: border-color 0.2s;
+                }
+                .divider a:hover { border-color: #fff; }
+            `}</style>
+
+            <div className="login-root">
+                <div className="orb orb1" />
+                <div className="orb orb2" />
+                <div className="orb orb3" />
+
+                <div className="glass-card">
+                    <div className="logo-row">
+                        <div className="logo-icon">⇄</div>
+                        <span className="logo-text">SkillSwap</span>
+                    </div>
+
+                    <div className="card-title">Welcome back</div>
+                    <div className="card-sub">Sign in to continue learning and teaching</div>
+
+                    {error && <div className="error-box">{error}</div>}
+
+                    <div className="field-group">
+                        <label className="field-label">EMAIL ADDRESS</label>
+                        <input
+                            className="glass-input"
+                            name="email" type="email"
+                            placeholder="you@example.com"
+                            value={form.email} onChange={handle}
+                            onKeyDown={e => e.key === 'Enter' && submit()}
                         />
-                        <Button variant="contained" fullWidth size="large" onClick={submit} disabled={loading} sx={{ py: 1.5, borderRadius: '10px' }}>
-                            {loading ? <CircularProgress size={22} color="inherit" /> : 'Sign in'}
-                        </Button>
-                    </Stack>
+                    </div>
 
-                    <Typography fontSize={13} color="text.secondary" textAlign="center" mt={3}>
-                        Don't have an account?{' '}
-                        <Typography component={Link} to="/register" fontSize={13} color="primary" fontWeight={600} sx={{ textDecoration: 'none' }}>
-                            Sign up
-                        </Typography>
-                    </Typography>
-                </Box>
-            </Box>
-        </Box>
+                    <div className="field-group">
+                        <label className="field-label">PASSWORD</label>
+                        <div className="pass-wrap">
+                            <input
+                                className="glass-input"
+                                name="password"
+                                type={showPass ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                value={form.password} onChange={handle}
+                                onKeyDown={e => e.key === 'Enter' && submit()}
+                                style={{ paddingRight: 42 }}
+                            />
+                            <button className="pass-toggle" onClick={() => setShowPass(p => !p)} type="button">
+                                {showPass ? '🙈' : '👁'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <button className="submit-btn" onClick={submit} disabled={loading}>
+                        {loading ? <CircularProgress size={20} sx={{ color: '#fff' }} /> : 'Sign in →'}
+                    </button>
+
+                    <div className="divider">
+                        Don't have an account? <Link to="/register">Sign up</Link>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 }

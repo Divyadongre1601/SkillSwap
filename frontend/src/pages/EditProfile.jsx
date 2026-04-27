@@ -14,7 +14,9 @@ import Lightbulb  from '@mui/icons-material/Lightbulb';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked';
 import Delete     from '@mui/icons-material/Delete';
+import Verified   from '@mui/icons-material/Verified'; // Added icon
 import Navbar from '../components/Navbar';
+import VerificationModal from '../components/VerificationModal'; // Import Modal
 import api    from '../api';
 
 const COLORS  = ['#2563EB','#7C3AED','#DB2777','#059669','#D97706','#DC2626'];
@@ -80,10 +82,12 @@ export default function EditProfile() {
     const [form,        setForm]        = useState({ name: '', city: '', description: '' });
     const [offered,     setOffered]     = useState([]);
     const [wanted,      setWanted]      = useState([]);
+    const [isVerified,  setIsVerified]  = useState(false); // Track verification status
     const [loading,     setLoading]     = useState(true);
     const [saving,      setSaving]      = useState(false);
     const [deleting,    setDeleting]    = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
+    const [isVerifyOpen, setIsVerifyOpen] = useState(false); // Modal state
     const [snack,       setSnack]       = useState({ open: false, msg: '', severity: 'success' });
 
     const notify = (msg, severity = 'success') => setSnack({ open: true, msg, severity });
@@ -94,6 +98,7 @@ export default function EditProfile() {
                 setForm({ name: data.name || '', city: data.city || '', description: data.description || '' });
                 setOffered(data.skillsOffered || []);
                 setWanted(data.skillsWanted   || []);
+                setIsVerified(data.isVerified || false);
                 localStorage.setItem('user', JSON.stringify(data));
             })
             .catch(() => notify('Could not load profile', 'error'))
@@ -127,6 +132,12 @@ export default function EditProfile() {
             setDeleting(false);
             setConfirmOpen(false);
         }
+    };
+
+    const handleVerified = () => {
+        setIsVerified(true);
+        setIsVerifyOpen(false);
+        notify('Account verified successfully!', 'success');
     };
 
     if (loading) return (
@@ -192,12 +203,30 @@ export default function EditProfile() {
                 {/* ── Avatar preview ─────────────────────────────────────── */}
                 <Paper elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 3, overflow: 'hidden', mb: 3 }}>
                     <Box sx={{ height: 80, background: `linear-gradient(135deg,${bg}33,${bg}66)` }} />
-                    <Box sx={{ px: 3, pb: 3 }}>
-                        <Avatar sx={{ width: 68, height: 68, bgcolor: bg, fontSize: 24, fontWeight: 800, border: '3px solid #fff', mt: -4, mb: 2 }}>
-                            {initials(form.name)}
-                        </Avatar>
-                        <Typography fontWeight={700} fontSize={18}>{form.name || 'Your name'}</Typography>
-                        <Typography fontSize={13} color="text.secondary">{form.city || 'Your city'}</Typography>
+                    <Box sx={{ px: 3, pb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                        <Box>
+                            <Avatar sx={{ width: 68, height: 68, bgcolor: bg, fontSize: 24, fontWeight: 800, border: '3px solid #fff', mt: -4, mb: 2 }}>
+                                {initials(form.name)}
+                            </Avatar>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <Typography fontWeight={700} fontSize={18}>{form.name || 'Your name'}</Typography>
+                                {isVerified && <Verified sx={{ fontSize: 18, color: '#2563EB' }} />}
+                            </Box>
+                            <Typography fontSize={13} color="text.secondary">{form.city || 'Your city'}</Typography>
+                        </Box>
+                        
+                        {/* Verification Trigger */}
+                        {!isVerified && (
+                            <Button 
+                                variant="outlined" 
+                                size="small" 
+                                color="primary" 
+                                onClick={() => setIsVerifyOpen(true)}
+                                sx={{ borderRadius: '8px', mb: 1, textTransform: 'none', fontWeight: 700 }}
+                            >
+                                Verify Skills
+                            </Button>
+                        )}
                     </Box>
                 </Paper>
 
@@ -301,6 +330,14 @@ export default function EditProfile() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* AI Verification Modal */}
+            {isVerifyOpen && (
+                <VerificationModal 
+                    onClose={() => setIsVerifyOpen(false)} 
+                    onVerified={handleVerified} 
+                />
+            )}
 
             <Snackbar open={snack.open} autoHideDuration={4000}
                 onClose={() => setSnack(s => ({ ...s, open: false }))}

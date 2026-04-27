@@ -4,6 +4,7 @@ import {
     Container, Typography, Box, Chip, Button, Avatar, Rating,
     Divider, Paper, CircularProgress, Snackbar, Alert
 } from '@mui/material';
+import VerificationModal from '../components/VerificationModal';
 import ArrowBackIcon          from '@mui/icons-material/ArrowBack';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import SchoolOutlinedIcon     from '@mui/icons-material/SchoolOutlined';
@@ -28,6 +29,7 @@ export default function UserProfile() {
     const [loading,    setLoading]    = useState(true);
     const [requesting, setRequesting] = useState(false);
     const [snack,      setSnack]      = useState({ open: false, msg: '', severity: 'success' });
+    const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
 
     const notify = (msg, severity = 'success') => setSnack({ open: true, msg, severity });
 
@@ -67,6 +69,13 @@ export default function UserProfile() {
         } catch (err) {
             notify(err.response?.data?.message || 'Could not save rating', 'error');
         }
+    };
+
+    const handleVerifySuccess = () => {
+        setIsVerifyModalOpen(false);
+        // Update local user state to show the badge immediately
+        setUser(prev => ({ ...prev, isVerified: true }));
+        setSnack({ open: true, msg: 'Profile Verified successfully!', severity: 'success' });
     };
 
     if (loading) return (
