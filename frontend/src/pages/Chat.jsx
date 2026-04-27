@@ -41,7 +41,7 @@ export default function Chat() {
     // ── Connect socket ─────────────────────────────────────────────────────
     useEffect(() => {
         // Get the socket URL from environment variables, fallback to localhost
-        const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+        const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://skillswap-wv4u.onrender.com/';
 
         // Initialize the socket with the dynamic URL and auth token
         socket = io(SOCKET_URL, {
